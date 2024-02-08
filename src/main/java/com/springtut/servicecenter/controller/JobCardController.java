@@ -1,9 +1,10 @@
-package com.springtut.servicecenter.controller;
+	package com.springtut.servicecenter.controller;
 
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.springtut.servicecenter.dto.JobCardDto;
 import com.springtut.servicecenter.dto.RequestPayloadDto;
+import com.springtut.servicecenter.dto.ResponseDto;
 import com.springtut.servicecenter.model.JobCard;
 import com.springtut.servicecenter.service.JobCardService;
 
@@ -29,44 +32,58 @@ public class JobCardController {
 	JobCardService jobCardService;
 	
 	@GetMapping("/get")
-	public List<JobCardDto> getJobCards(){
+	public ResponseDto getJobCards(){
 		List<JobCardDto> jobCardDtos =  jobCardService.getAllJobCards();
-		return jobCardDtos;
+		return new ResponseDto(200, "Jobcards fetched successfully", jobCardDtos);
 	}
 	
 	@GetMapping("/get/{jobCardId}")
-	public JobCardDto getJobCard(@PathVariable("jobCardId") Long jobCardId){
+	public ResponseDto getJobCard(@PathVariable("jobCardId") Long jobCardId){
 		JobCardDto jobCardDto =  jobCardService.getJobCard(jobCardId);
-		return jobCardDto;
+		return new ResponseDto(200, "Jobcard fetched successfully", jobCardDto);
 	}
 	
 	@PostMapping("/create")
-	public JobCardDto saveJobCard(@RequestBody JobCard jobCard) {
+	public ResponseDto saveJobCard(@RequestBody JobCard jobCard) {
 		JobCardDto jobCardDto = jobCardService.saveJobCard(jobCard);
-		return jobCardDto;
+		return new ResponseDto(200, "jobcard created successfully", jobCardDto);
 	}
 	
 	@PostMapping("/assign-created")
-	public JobCardDto assignvehical(@RequestBody RequestPayloadDto requestPayload) {
+	public ResponseDto assignvehical(@RequestBody RequestPayloadDto requestPayload) {
 		JobCardDto jobCardDto = jobCardService.assignCreated(requestPayload.jobCardId, requestPayload.chasisNumber);
-		return jobCardDto;
+		return new ResponseDto(200, "Vehical assigned to jobcard successfully", jobCardDto);
 	}
 	
 	@PutMapping("/update")
-	public JobCardDto updateJobCard(@RequestBody JobCard jobCard) {	
+	public ResponseDto updateJobCard(@RequestBody JobCard jobCard) {	
 		JobCardDto jobCardDto = jobCardService.updateJobCard(jobCard);
-		System.out.println(jobCardDto);
-		return jobCardDto;
+		return new ResponseDto(200, "jobcard updated successfully", jobCardDto);
 	}
 	
 	@DeleteMapping("/delete/{jobCardId}")
-	public String deleteJobCard(@PathVariable("jobCardId") Long jobCardId) {
+	public ResponseDto deleteJobCard(@PathVariable("jobCardId") Long jobCardId) {
+		String message = new String();
 		if(jobCardService.deleteJobCard(jobCardId)) {
-			return "JobCard deleted successfully";
+			message = "JobCard deleted successfully";
 		}
 		else {
-			return "JobCard deletion unsuccessfull";
+			message = "JobCard not deleted";
 		}
+		
+		return new ResponseDto(200, message);
+	}
+	                  
+	@PostMapping("/upload")
+	public ResponseDto getFile(@RequestParam("file") MultipartFile file) {
+		String message = "File uploaded. Download by clicking "+jobCardService.uploadFile(file);
+		return new ResponseDto(200, message);
+	}
+	
+	@GetMapping("/download/{fileName}")
+	public ResponseEntity<Object> getFile(@PathVariable("fileName") String name){
+		ResponseEntity<Object> entity = jobCardService.getFile(name);
+		return entity;
 	}
 	
 }

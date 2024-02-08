@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.springtut.servicecenter.dto.JobCardDto;
+import com.springtut.servicecenter.dto.ResponseDto;
 import com.springtut.servicecenter.dto.VehicalDto;
 import com.springtut.servicecenter.model.JobCard;
 import com.springtut.servicecenter.model.Vehical;
@@ -26,38 +27,39 @@ public class VehicalController {
 	VehicalService service;
 	
 	@GetMapping("/get")
-	public List<VehicalDto> getVehicals(){
+	public ResponseDto getVehicals(){
 		List<VehicalDto> vehicalDtos =  service.getAllVehicals();
-		return vehicalDtos;
+		return new ResponseDto(200, "Vehicals fetched successfully", vehicalDtos);
 	}
 	
 	@GetMapping("/get/{chasisnumber}")
-	public VehicalDto getVehical(@PathVariable("chasisnumber") String chasisNumber){
+	public ResponseDto getVehical(@PathVariable("chasisnumber") String chasisNumber){
 		VehicalDto vehicalDto =  service.getVehicalDto(chasisNumber);
-		return vehicalDto;
+		return new ResponseDto(200, "Vehical fetched successfully", vehicalDto);
 	}
 	
 	@PostMapping("/create")
-	public VehicalDto saveVehical(@RequestBody Vehical vehical) {
+	public ResponseDto saveVehical(@RequestBody Vehical vehical) {
 		VehicalDto vehicalDto = service.addVehical(vehical);
-		return vehicalDto;
+		return new ResponseDto(200, "Vehical saved successfully", vehicalDto);
 	}
 	
 	@PutMapping("/update")
-	public VehicalDto updateVehical(@RequestBody Vehical vehical) {	
+	public ResponseDto updateVehical(@RequestBody Vehical vehical) {	
 		VehicalDto vehicalDto = service.addVehical(vehical);
-		System.out.println(vehicalDto);
-		return vehicalDto;
+		return new ResponseDto( 200, "Vehical data updated successfully", vehicalDto);
 	}
 	
 	@DeleteMapping("/delete/{chasisNumber}")
-	public String deleteVehical(@PathVariable("chasisNumber") String chasisNumber) {
+	public ResponseDto deleteVehical(@PathVariable("chasisNumber") String chasisNumber) {
+		String message = new String();
 		if(service.deleteVehical(chasisNumber)) {
-			return "Vehical deleted successfully";
+			message = "Vehical deleted successfully";
 		}
 		else {
-			return "Vehical deletion unsuccessfull";
+			message = "Vehical deletion unsuccessfull";
 		}
+		return new ResponseDto(200, message);
 	}
 	
 }

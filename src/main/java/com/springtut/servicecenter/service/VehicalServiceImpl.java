@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.springtut.servicecenter.dto.JobCardDto;
 import com.springtut.servicecenter.dto.VehicalDto;
+import com.springtut.servicecenter.exception.VehicalNotFoundException;
 import com.springtut.servicecenter.model.JobCard;
 import com.springtut.servicecenter.model.Vehical;
 import com.springtut.servicecenter.repository.VehicalRepository;
@@ -24,13 +25,13 @@ public class VehicalServiceImpl implements VehicalService{
 	
 	@Override
 	public Vehical getVehical(String chasisNumber) {
-		Vehical vehical = vehicalRepository.findById(chasisNumber).orElseThrow(()-> new RuntimeException("Vehical not found"));
+		Vehical vehical = vehicalRepository.findById(chasisNumber).orElseThrow(()-> new VehicalNotFoundException("Vehical not found"));
 		return vehical;
 	}
 
 	@Override
 	public VehicalDto getVehicalDto(String chasisNumber) {
-		Vehical vehical = vehicalRepository.findById(chasisNumber).orElseThrow(()-> new RuntimeException("Vehical not found"));
+		Vehical vehical = vehicalRepository.findById(chasisNumber).orElseThrow(()-> new VehicalNotFoundException("Vehical not found"));
 		VehicalDto vehicalDto = modelMapper.map(vehical, VehicalDto.class);
 		return vehicalDto;
 	}
@@ -59,14 +60,15 @@ public class VehicalServiceImpl implements VehicalService{
 
 	@Override
 	public boolean deleteVehical(String chasisNumber) {
-		try {
+		boolean bool = false;
+			if(vehicalRepository.existsById(chasisNumber)) {
 			vehicalRepository.deleteById(chasisNumber);
-			return true;
+			bool = true;
 			}
-			catch(Exception e) {
-				System.out.println(e);
+			else {
+				throw new VehicalNotFoundException("Vehical not found while deleting");
 			}
-			return false;
+			return bool;
 	}
 
 }
